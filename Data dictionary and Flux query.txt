@@ -1,0 +1,34 @@
+BoilerFibaroUniversalBinarySensor_2_Temperature3 - hot water tank temperature
+BoilerFibaroUniversalBinarySensor_Temperature1 - hot water tank temperature (before rebuild)
+
+BoilerFibaroUniversalBinarySensor_2_Temperature1 - heating water fwd temperature (may be affected by hot water tank heating)
+BoilerFibaroUniversalBinarySensor_2_Temperature2 - heating water rtn temperature (may be affected by hot water tank heating)
+
+LivingRoomMotionSensor_SensorTemperature - living room temperature (may be affected by other heating)
+LivingRoomDanfoss_SensorTemperature - living room temperature (may be affected by other heating)
+
+GroundFloorUnderfloorHeatingControl_Switch - underfloor heating on
+GroundFloorRadiatorControl_Switch - radiator heating on
+UpstairsRadiatorHeatingControl_Switch - upstairs radiator heating on
+
+BoilerFibaroUniversalBinarySensor_Temperature2 - wood fired boiler water tank temperature (top or bottom)
+BoilerFibaroUniversalBinarySensor_Temperature3 - wood fired boiler water tank temperature
+
+OneCallAPIweatherandforecast_Current_Temperature - external temperature
+
+
+
+from(bucket: "openhab-bucket")
+  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+  |> filter(fn: (r) => r["_measurement"] == "BoilerFibaroUniversalBinarySensor_2_Temperature3" or r["_measurement"] == "BoilerFibaroUniversalBinarySensor_Temperature1" or r["_measurement"] == "BoilerFibaroUniversalBinarySensor_2_Temperature1" or r["_measurement"] == "BoilerFibaroUniversalBinarySensor_2_Temperature2" or r["_measurement"] == "LivingRoomMotionSensor_SensorTemperature" or r["_measurement"] == "LivingRoomDanfoss_SensorTemperature" or r["_measurement"] == "GroundFloorUnderfloorHeatingControl_Switch" or r["_measurement"] == "GroundFloorRadiatorControl_Switch" or r["_measurement"] == "UpstairsRadiatorHeatingControl_Switch" or r["_measurement"] == "BoilerFibaroUniversalBinarySensor_Temperature2" or r["_measurement"] == "BoilerFibaroUniversalBinarySensor_Temperature3" or r["_measurement"] == "OneCallAPIweatherandforecast_Current_Temperature")
+  |> aggregateWindow(every: 1h, fn: mean, createEmpty: true)
+  |> fill(usePrevious: true)
+  |> yield(name: "mean")
+
+from(bucket: "openhab-bucket")
+  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+  |> filter(fn: (r) => r["_measurement"] == "BoilerFibaroUniversalBinarySensor_2_Temperature3" or r["_measurement"] == "BoilerFibaroUniversalBinarySensor_Temperature1")
+  |> aggregateWindow(every: 1m, fn: mean, createEmpty: true)
+  |> fill(usePrevious: true)
+  |> yield(name: "mean")
+
